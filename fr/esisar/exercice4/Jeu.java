@@ -29,9 +29,7 @@ public class Jeu {
             byte[] bufR = new byte[2048];
             InputStream is = socket.getInputStream();
             int lenBufR = is.read(bufR);
-            
-            // todo Il faudra penser à vérifier si le message contient une
-            // ou plusieurs questions ou alors une portion de question
+
             if (lenBufR != -1) {
 
                 // Ici on a plusieurs cas
@@ -48,56 +46,31 @@ public class Jeu {
                     // On a reçu tout le message ou au moins la fin du message
                     // On ajoute la fin du message
                     messageCourant = messageCourant.concat(message);
-
-                    System.out.println("Message traité par le client = " 
-                            + messageCourant);
-
-                    int plusIndice = messageCourant.indexOf('+'); 
-                    int egalIndice = messageCourant.indexOf('=');
-                    
-                    int x = Integer.parseInt(messageCourant.substring(0, plusIndice));
-                    int y = Integer.parseInt(messageCourant.substring(plusIndice, egalIndice));
-
-                    // On envoie ensuite la réponse
-                    byte[] bufE = new String(x + y + ";").getBytes();
-                    OutputStream os = socket.getOutputStream();
-                    os.write(bufE);
-                    System.out.println("Message envoyé = " + (x + y) + ";");
-
-                    messageCourant = "";
-
-                    // On a potentiellement traité la première partie de ce
-                    // qu'on reçu
                     int pointIndice = message.indexOf('?');
-                    if (pointIndice + 1 != message.length()) {
-                        message = message.substring(pointIndice + 1);
 
-                        // On travaille jusqu'au dernier point d'interrogation
-                        boolean continuer = true;
-                        while (continuer && message.contains("?")) {
-                            System.out.println("Message traité par le client = " + message);
+                    // On travaille jusqu'au dernier point d'interrogation
+                    boolean continuer = true;
+                    while (continuer && messageCourant.contains("?")) {
+                        System.out.println("Message traité par le client = " + messageCourant);
 
-                            plusIndice = message.indexOf('+'); 
-                            egalIndice = message.indexOf('=');
+                        int plusIndice = messageCourant.indexOf('+'); 
+                        int egalIndice = messageCourant.indexOf('=');
 
-                            x = Integer.parseInt(message.substring(0, plusIndice));
-                            y = Integer.parseInt(message.substring(plusIndice, egalIndice));
+                        int x = Integer.parseInt(messageCourant.substring(0, plusIndice));
+                        int y = Integer.parseInt(messageCourant.substring(plusIndice, egalIndice));
 
-                            // On envoie ensuite la réponse
-                            bufE = new String(x + y + ";").getBytes();
-                            os.write(bufE);
-                            System.out.println("Message envoyé = " + (x + y) + ";");
+                        // On envoie ensuite la réponse
+                        byte[] bufE = new String(x + y + ";").getBytes();
+                        OutputStream os = socket.getOutputStream();
+                        os.write(bufE);
+                        System.out.println("Message envoyé = " + (x + y) + ";");
 
-                            pointIndice = message.indexOf('?');
-                            if (pointIndice < message.length()) {
-                                message = message.substring(pointIndice + 1);
-                            } else {
-                                continuer = false;
-                            }
+                        pointIndice = messageCourant.indexOf('?');
+                        if (pointIndice < messageCourant.length()) {
+                            messageCourant = messageCourant.substring(pointIndice + 1);
+                        } else {
+                            continuer = false;
                         }
-
-                        messageCourant = messageCourant.concat(message);
-
                     }
                 } else {
                     // Si ce qu'on a reçu n'est pas la totalité du message
@@ -109,5 +82,6 @@ public class Jeu {
 
             }
         }
+        socket.close();
     }
 }
