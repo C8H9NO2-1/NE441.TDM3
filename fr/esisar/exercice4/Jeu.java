@@ -24,10 +24,14 @@ public class Jeu {
 
         boolean b = true;
         String messageCourant = new String();
+        byte[] bufR = new byte[2048];
+        InputStream is = socket.getInputStream();
+
+
+        byte[] bufE;
+        OutputStream os = socket.getOutputStream();
         while (b) {
             // On reçoit le message du serveur
-            byte[] bufR = new byte[2048];
-            InputStream is = socket.getInputStream();
             int lenBufR = is.read(bufR);
 
             if (lenBufR != -1) {
@@ -60,8 +64,7 @@ public class Jeu {
                         int y = Integer.parseInt(messageCourant.substring(plusIndice, egalIndice));
 
                         // On envoie ensuite la réponse
-                        byte[] bufE = new String(x + y + ";").getBytes();
-                        OutputStream os = socket.getOutputStream();
+                        bufE = new String(x + y + ";").getBytes();
                         os.write(bufE);
                         System.out.println("Message envoyé = " + (x + y) + ";");
 
